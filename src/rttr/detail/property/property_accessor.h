@@ -66,9 +66,9 @@ struct property_accessor<T[N]>
 template<typename T>
 struct property_accessor<T*>
 {
-    static bool set_value(T* prop, argument& arg)
+    static bool set_value(T*& prop, argument& arg)
     {
-        *prop = *arg.get_value<T*>();
+        prop = arg.get_value<T*>();
         return true;
     }
 };

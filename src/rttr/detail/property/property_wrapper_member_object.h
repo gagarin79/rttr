@@ -158,7 +158,8 @@ class property_wrapper<member_object_ptr, A(C::*), void, Acc_Level, return_as_pt
             C* ptr = object.try_convert<C>();
             if (ptr && arg.is_type<A*>())
             {
-                return property_accessor<A*>::set_value(&(ptr->*m_acc), arg);
+                auto* acc = &(ptr->*m_acc);
+                return property_accessor<A*>::set_value(acc, arg);
             }
             else
             {
