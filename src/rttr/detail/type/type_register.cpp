@@ -316,7 +316,12 @@ type type_register_private::register_type(type_data& info) RTTR_NOEXCEPT
     // has to be done as last step
     register_base_class_info(info);
 
-    return type(type_data_container[id]);
+    type t(type_data_container[id]);
+
+    update_class_list(t, &detail::class_data::m_properties);
+    update_class_list(t, &detail::class_data::m_methods);
+
+    return t;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -517,7 +522,6 @@ void type_register_private::property(const type& t, std::unique_ptr<property_wra
 
         property_list.emplace_back(detail::create_item<::rttr::property>(prop.get()));
         get_property_storage().push_back(std::move(prop));
-        update_class_list(t, &detail::class_data::m_properties);
     }
     else
     {
@@ -564,7 +568,6 @@ void type_register_private::method(const type& t, std::unique_ptr<method_wrapper
         auto& method_list = t.m_type_data->get_class_data().m_methods;
         method_list.emplace_back(create_item<::rttr::method>(meth.get()));
         get_method_storage().push_back(std::move(meth));
-        update_class_list(t, &class_data::m_methods);
     }
     else
     {
