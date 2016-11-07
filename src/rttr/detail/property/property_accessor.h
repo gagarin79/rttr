@@ -33,7 +33,7 @@ namespace rttr
 namespace detail
 {
 
-template<typename T>
+template<typename T, bool default_accessor = true>
 struct property_accessor
 {
     static bool set_value(T& prop, argument& arg)
@@ -44,7 +44,7 @@ struct property_accessor
 };
 
 template<typename T>
-struct property_accessor<std::reference_wrapper<T>>
+struct property_accessor<std::reference_wrapper<T>, false>
 {
     static bool set_value(T& prop, argument& arg)
     {
@@ -54,7 +54,7 @@ struct property_accessor<std::reference_wrapper<T>>
 };
 
 template<typename T, std::size_t N>
-struct property_accessor<T[N]>
+struct property_accessor<T[N], false>
 {
     static bool set_value(T (& prop)[N], argument& arg)
     {
@@ -64,7 +64,7 @@ struct property_accessor<T[N]>
 };
 
 template<typename T>
-struct property_accessor<T*>
+struct property_accessor<T*, false>
 {
     static bool set_value(T* prop, argument& arg)
     {
@@ -74,7 +74,7 @@ struct property_accessor<T*>
 };
 
 template<typename T, std::size_t N>
-struct property_accessor<T(*)[N]>
+struct property_accessor<T(*)[N], false>
 {
     static bool set_value(T (* prop)[N], argument& arg)
     {

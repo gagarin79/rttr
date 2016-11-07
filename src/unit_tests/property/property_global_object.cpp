@@ -41,6 +41,7 @@ using namespace std;
 static std::string g_name;
 static const int g_int_value = 23;
 static std::vector<int> g_my_array(1000, 42);
+static int* g_int_ptr_value = nullptr;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -68,6 +69,7 @@ RTTR_REGISTRATION
             metadata("Description", "Some Text"),
             policy::prop::as_reference_wrapper
         )
+        .property("global_obj_7", &g_int_ptr_value) ( metadata("Description", "Some Text") )
         ;
 }
 
@@ -224,6 +226,34 @@ TEST_CASE("property - global object - read only - as_reference_wrapper", "[prope
     // invalid invoke
     int value = 42;
     CHECK(prop.set_value(instance(), std::cref(value)) == false);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+TEST_CASE("property - global object - pointer", "[property]")
+{
+    property prop = type::get_global_property("global_obj_7");
+    REQUIRE(prop.is_valid() == true);
+
+    // metadata
+    CHECK(prop.is_static() == true);
+    CHECK(prop.is_array() == false);
+    CHECK(prop.get_type() == type::get<int*>());
+    CHECK(prop.get_access_level() == rttr::access_levels::public_access);
+    CHECK(prop.get_metadata("Description") == "Some Text");
+
+    // valid invoke
+    CHECK(prop.get_value(instance()).is_type<int*>() == true);
+    CHECK(prop.get_value(instance()).get_value<int*>() == nullptr);
+    int x = 42;
+    int* x_ptr = &x;
+    CHECK(prop.set_value(instance(), x_ptr) == true);
+    CHECK(prop.get_value(instance()).is_type<int*>() == true);
+    x_ptr = prop.get_value(instance()).get_value<int*>();
+    CHECK(*x_ptr == 42);
+
+    // invalid invoke
+    CHECK(prop.set_value(instance(), 42) == false);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

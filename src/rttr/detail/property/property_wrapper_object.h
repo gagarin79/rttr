@@ -59,7 +59,7 @@ class property_wrapper<object_ptr, C*, void, Acc_Level, return_as_copy, set_valu
         {
             if (arg.is_type<C>())
             {
-                return property_accessor<C>::set_value(*m_accessor, arg);
+                return property_accessor<C, true>::set_value(*m_accessor, arg);
             }
             else
             {
@@ -148,7 +148,7 @@ class property_wrapper<object_ptr, C*, void, Acc_Level, return_as_ptr, set_as_pt
         {
             if (arg.is_type<C*>())
             {
-                return property_accessor<C*>::set_value(m_accessor, arg);
+                return property_accessor<C*, false>::set_value(m_accessor, arg);
             }
             else
             {
@@ -237,7 +237,7 @@ class property_wrapper<object_ptr, C*, void, Acc_Level, get_as_ref_wrapper, set_
         {
             if (arg.is_type<std::reference_wrapper<C>>())
             {
-                return property_accessor<std::reference_wrapper<C>>::set_value(*m_accessor, arg);
+                return property_accessor<std::reference_wrapper<C>, false>::set_value(std::ref(*m_accessor), arg);
             }
             else
             {

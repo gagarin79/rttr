@@ -47,6 +47,7 @@ struct property_member_obj_test
     }
 
 
+    int*                _p0;
     int                 _p1;
     const int           _p2 = 12;
     std::vector<int>    _p3;
@@ -72,6 +73,7 @@ static void my_callback(int)
 RTTR_REGISTRATION
 {
     registration::class_<property_member_obj_test>("property_member_obj_test")
+        .property("p0",    &property_member_obj_test::_p0) ( metadata("Description", "Some Text") )
         .property("p1",    &property_member_obj_test::_p1) ( metadata("Description", "Some Text") )
         .property_readonly("p2",    &property_member_obj_test::_p2) ( metadata("Description", "Some Text") )
         .property("p3",    &property_member_obj_test::_p3)
@@ -304,6 +306,38 @@ TEST_CASE("property - class object - read only - as_reference_wrapper", "[proper
     // invalid invoke
     CHECK(prop.set_value(obj, "test") == false);
     CHECK(prop.set_value(g_invalid_instance, "test") == false);
+    CHECK(prop.get_value(g_invalid_instance).is_valid() == false);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+TEST_CASE("property - class object - pointer", "[property]")
+{
+    property_member_obj_test obj;
+    type prop_type = type::get(obj);
+    REQUIRE(prop_type.is_valid() == true);
+
+    property prop = prop_type.get_property("p0");
+    REQUIRE(prop.is_valid() == true);
+
+    // metadata
+    CHECK(prop.is_readonly() == false);
+    CHECK(prop.is_static() == false);
+    CHECK(prop.is_array() == false);
+    CHECK(prop.get_type() == type::get<int*>());
+    CHECK(prop.get_access_level() == rttr::access_levels::public_access);
+    CHECK(prop.get_metadata("Description") == "Some Text");
+
+    // invoke
+    int x = 42;
+    int* x_ptr = &x;
+    CHECK(prop.set_value(obj, x_ptr) == true);
+    CHECK(prop.get_value(obj).is_type<int*>() == true);
+    x_ptr = prop.get_value(obj).get_value<int*>();
+    CHECK(*x_ptr == 42);
+
+    // invalid invoke
+    CHECK(prop.set_value(obj, "test") == false);
     CHECK(prop.get_value(g_invalid_instance).is_valid() == false);
 }
 
